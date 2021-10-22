@@ -1,0 +1,53 @@
+@tenantId = 16ece150-c4f7-4fd1-ac86-a5db976b6b02
+@clientId = d6d9d197-e2c7-4062-92e5-80963158a3b6
+@clientSecret = Cw77Q~O6lLZ4Vb6YjRwMFg56~Q5.BK.712FMx
+@baseUri = https://api.businesscentral.dynamics.com 
+@scope = {{baseUri}}/.default
+
+@bcEnvironmentName = Sandbox
+
+@url = {{baseUri}}/v2.0/{{tenantId}}/{{bcEnvironmentName}}/api/v2.0
+
+### items, customers, vendors 
+@entityName =customers
+
+### @name auth
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token HTTP/1.1 Content-type: application/x-www-form-urlencoded
+
+grant_type=client_credentials &client_id={{clientId}} &client_secret={{clientSecret}} &scope={{scope}} 
+
+#### Variable Response 
+@accessHeader = Bearer {{auth.response.body.$.access_token}}
+
+### @name GetCompanies
+GET {{url}}/companies HTTP/1.1 
+Authorization: {{accessHeader}}
+
+#### Variable Response 
+@companyId = {{GetCompanies.response.body.value.[0].id}} 
+@companyUrl = {{url}}/companies({{companyId}}) 
+@displayName = MyItemDisplayName
+
+
+### @name GetEntities 
+GET {{companyUrl}}/{{entityName}} HTTP/1.1 
+Authorization: {{accessHeader}}
+
+
+### @name CreateEntity POST {{companyUrl}}/{{entityName}} HTTP/1.1 Content-Type: application/json Authorization: {{accessHeader}}
+
+{
+"displayName" : "{{displayName}}"
+}
+
+### # @name GetCreatedEntity GET {{companyUrl}}/{{entityName}}/?$filter=displayName eq '{{displayName}}' HTTP/1.1 Authorization: {{accessHeader}}
+
+#### Variable Response @entityId = {{GetCreatedEntity.response.body.value.[0].id}}
+
+### @name ModifyEntity PATCH {{companyUrl}}/{{entityName}}({{entityId}}) Authorization: {{accessHeader}} Content-Type: application/json If-Match: *
+
+{
+"displayName" : "DeleteMe-{{displayName}}"
+}
+
+### @name DeleteItem Delete {{companyUrl}}/{{entityName}}({{entityId}}) Authorization: {{accessHeader}}
