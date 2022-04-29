@@ -4,14 +4,14 @@
 @baseUri = https://api.businesscentral.dynamics.com 
 @scope = {{baseUri}}/.default
 
-@bcEnvironmentName = Sandbox
+@bcEnvironmentName = Skanderby_Intern_Sandbox1
 
 @url = {{baseUri}}/v2.0/{{tenantId}}/{{bcEnvironmentName}}/api/v2.0
 
 ### items, customers, vendors 
 @entityName =customers
 
-### @name auth
+# @name auth
 POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token HTTP/1.1 Content-type: application/x-www-form-urlencoded
 
 grant_type=client_credentials &client_id={{clientId}} &client_secret={{clientSecret}} &scope={{scope}} 
@@ -19,7 +19,7 @@ grant_type=client_credentials &client_id={{clientId}} &client_secret={{clientSec
 #### Variable Response 
 @accessHeader = Bearer {{auth.response.body.$.access_token}}
 
-### @name GetCompanies
+# @name GetCompanies
 GET {{url}}/companies HTTP/1.1 
 Authorization: {{accessHeader}}
 
@@ -28,8 +28,7 @@ Authorization: {{accessHeader}}
 @companyUrl = {{url}}/companies({{companyId}}) 
 @displayName = MyItemDisplayName
 
-
-### @name GetEntities 
+# @name GetEntities 
 GET {{companyUrl}}/{{entityName}} HTTP/1.1 
 Authorization: {{accessHeader}}
 
